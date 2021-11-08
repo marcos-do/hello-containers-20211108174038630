@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marcos-deployment
+  namespace: deploy
+  labels:
+     app: marcos-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: marcos-deployment
+  template:
+    metadata:
+      labels:
+        app: marcos-deployment
+    spec:
+      containers:
+      - name: marcos-deployment
+        image: us.icr.io/deploy/marcos:do
+        ports:
+          - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marcos-service
+  namespace: deploy
+spec:
+  type: ClusterIP
+  selector:
+    app: marcos-deployment
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+    name: marcos-route
+    namespace: deploy
+spec:
+    to:
+        kind: Service
+        name: marcos-service
